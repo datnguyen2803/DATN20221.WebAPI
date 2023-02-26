@@ -43,6 +43,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="M2Mqtt.Net, Version=4.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\M2Mqtt.4.3.0.0\lib\net45\M2Mqtt.Net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -51,6 +60,8 @@
     <Reference Include="System.Net.Http.Formatting, Version=5.2.9.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.9\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -80,20 +91,61 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DBDATN.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>DBDATN.edmx</DependentUpon>
+      <LastGenOutput>DBDATN.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="DBDATN.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>DBDATN.edmx</DependentUpon>
+      <LastGenOutput>DBDATN.cs</LastGenOutput>
+    </Content>
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\DataAPIConfig.cs" />
     <Compile Include="Controller\HelloController.cs" />
+    <Compile Include="Controller\MQTTController.cs" />
     <Compile Include="Controller\PumpController.cs" />
     <Compile Include="Controller\UserController.cs" />
+    <Compile Include="DBDATN.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DBDATN.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DBDATN.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DBDATN.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DBDATN.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DBDATN.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\UserModel.cs" />
+    <Compile Include="Models\PumpModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PumpTable.cs">
+      <DependentUpon>DBDATN.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserTable.cs">
+      <DependentUpon>DBDATN.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EntityDeploy Include="DBDATN.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>DBDATN.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="DBDATN.edmx.diagram">
+      <DependentUpon>DBDATN.edmx</DependentUpon>
+    </Content>
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -101,6 +153,9 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
