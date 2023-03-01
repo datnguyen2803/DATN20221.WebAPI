@@ -12,9 +12,10 @@ namespace DataAPI.Controller
 {
     public class MQTTController : ApiController
     {
-        const string mainTopic = "datn/pump/state";
+        const string MQTTBroker = "broker.hivemq.com";
+        const string mainTopic = "DATN.Pumpmonitor/Pump";
 
-        MqttClient m_mqttClient = new MqttClient("broker.emqx.io");
+        MqttClient m_mqttClient = new MqttClient(MQTTBroker);
         string m_topic { get; set; }
         string m_lastSubMessage { get; set; }
 
@@ -30,7 +31,7 @@ namespace DataAPI.Controller
         {
             string clientId = Guid.NewGuid().ToString();
             m_mqttClient.Connect(clientId);
-            Debug.WriteLine("[MQTT] Connected successfully to {0} with clientID = {1}", "broker.emqx.io", clientId); ;
+            Debug.WriteLine("[MQTT] Connected successfully to {0} with clientID = {1}", MQTTBroker, clientId); ;
 
             if(m_topic == null) 
             {
@@ -55,6 +56,98 @@ namespace DataAPI.Controller
             {
                 m_lastSubMessage = _message;
                 Debug.WriteLine(String.Format("[MQTT] Received: {0}", m_lastSubMessage));    
+            }
+
+            PumpTable myPump = MessageToPump(_message);
+            if(myPump == null) 
+            {
+                //do nothing
+            }
+            else
+            {
+                UpdateToDB(myPump);
+            }
+            
+        }
+
+        private PumpTable MessageToPump(string message)
+        {
+            //PumpTable retPump= new PumpTable();
+
+            if(message.Length != 11)
+            {
+                return null;
+            }
+
+            // 4 first char must = "pump"
+            string keyword = message.Substring(0, 4);
+            Debug.WriteLine(keyword);
+            string stationName = message.Substring(5, 1);
+            string pumpPosition = message.Substring(7, 2);
+            int pumpState = Int32.Parse(message.Substring(message.Length-1));
+            Debug.WriteLine(String.Format("After solve: {0} {1} {2} {3}", keyword, stationName, pumpPosition, pumpState));
+            if(keyword != "pump")
+            {
+                // do nothing
+                return null;
+            }
+            
+            int stationId = RetrieveStationId(stationName);
+            if(stationId == 0) 
+            {
+                // not found any station
+                return null;
+            }
+
+            return new PumpTable()
+            {
+                Id = 0,
+                StationId = stationId,
+                Position = pumpPosition,
+                State = pumpState
+            };
+
+        }
+
+        private int RetrieveStationId(string StationName)
+        {
+            var myEntity = new DATNDBEntities();
+            StationTable retStation = myEntity.StationTables.Include("Id")
+                                      .Where(station => station.Name == StationName)
+                                      .Select(station => new StationTable()
+                                      {
+                                          Id = station.Id,
+                                          Name = station.Name,
+                                          Address = station.Address
+                                      }).FirstOrDefault<StationTable>();
+
+            if (retStation == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return retStation.Id;
+            }
+        }
+
+        private bool UpdateToDB(PumpTable checkPump)
+        {
+            var myEntity = new DATNDBEntities();
+            var oldPump = myEntity.PumpTables
+                    .Where(pump => (pump.StationId == checkPump.StationId && pump.Position == checkPump.Position))
+                    .FirstOrDefault<PumpTable>();
+
+            if (oldPump != null)
+            {
+                oldPump.State = checkPump.State;
+                myEntity.SaveChanges();
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
 
         }

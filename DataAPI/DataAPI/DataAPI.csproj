@@ -91,15 +91,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DBDATN.Context.tt">
+    <Content Include="DATNDB.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>DBDATN.edmx</DependentUpon>
-      <LastGenOutput>DBDATN.Context.cs</LastGenOutput>
+      <DependentUpon>DATNDB.edmx</DependentUpon>
+      <LastGenOutput>DATNDB.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="DBDATN.tt">
+    <Content Include="DATNDB.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>DBDATN.edmx</DependentUpon>
-      <LastGenOutput>DBDATN.cs</LastGenOutput>
+      <DependentUpon>DATNDB.edmx</DependentUpon>
+      <LastGenOutput>DATNDB.cs</LastGenOutput>
     </Content>
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
@@ -109,21 +109,22 @@
     <Compile Include="Controller\HelloController.cs" />
     <Compile Include="Controller\MQTTController.cs" />
     <Compile Include="Controller\PumpController.cs" />
+    <Compile Include="Controller\StationController.cs" />
     <Compile Include="Controller\UserController.cs" />
-    <Compile Include="DBDATN.Context.cs">
+    <Compile Include="DATNDB.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>DBDATN.Context.tt</DependentUpon>
+      <DependentUpon>DATNDB.Context.tt</DependentUpon>
     </Compile>
-    <Compile Include="DBDATN.cs">
+    <Compile Include="DATNDB.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>DBDATN.tt</DependentUpon>
+      <DependentUpon>DATNDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="DBDATN.Designer.cs">
+    <Compile Include="DATNDB.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>DBDATN.edmx</DependentUpon>
+      <DependentUpon>DATNDB.edmx</DependentUpon>
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -132,19 +133,22 @@
     <Compile Include="Models\PumpModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PumpTable.cs">
-      <DependentUpon>DBDATN.tt</DependentUpon>
+      <DependentUpon>DATNDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="StationTable.cs">
+      <DependentUpon>DATNDB.tt</DependentUpon>
     </Compile>
     <Compile Include="UserTable.cs">
-      <DependentUpon>DBDATN.tt</DependentUpon>
+      <DependentUpon>DATNDB.tt</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EntityDeploy Include="DBDATN.edmx">
+    <EntityDeploy Include="DATNDB.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>DBDATN.Designer.cs</LastGenOutput>
+      <LastGenOutput>DATNDB.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <Content Include="DBDATN.edmx.diagram">
-      <DependentUpon>DBDATN.edmx</DependentUpon>
+    <Content Include="DATNDB.edmx.diagram">
+      <DependentUpon>DATNDB.edmx</DependentUpon>
     </Content>
     <None Include="packages.config" />
     <None Include="Web.Debug.config">

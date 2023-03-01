@@ -13,10 +13,10 @@ namespace DataAPI
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class DBDATNEntities : DbContext
+    public partial class DATNDBEntities : DbContext
     {
-        public DBDATNEntities()
-            : base("name=DBDATNEntities")
+        public DATNDBEntities()
+            : base("name=DATNDBEntities")
         {
         }
     
@@ -26,6 +26,7 @@ namespace DataAPI
         }
     
         public virtual DbSet<PumpTable> PumpTables { get; set; }
+        public virtual DbSet<StationTable> StationTables { get; set; }
         public virtual DbSet<UserTable> UserTables { get; set; }
     }
 }

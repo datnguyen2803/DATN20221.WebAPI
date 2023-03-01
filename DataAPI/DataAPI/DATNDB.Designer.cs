@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'D:\1BK\DATN20221\DATN20221.WebAPI\DataAPI\DataAPI\DBDATN.edmx'. 
+﻿// T4 code generation is enabled for model 'D:\1BK\DATN20221\DATN20221.WebAPI\DataAPI\DataAPI\DATNDB.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.

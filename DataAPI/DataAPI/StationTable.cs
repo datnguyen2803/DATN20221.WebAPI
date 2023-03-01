@@ -12,13 +12,19 @@ namespace DataAPI
     using System;
     using System.Collections.Generic;
     
-    public partial class PumpTable
+    public partial class StationTable
     {
-        public int Id { get; set; }
-        public int StationId { get; set; }
-        public string Position { get; set; }
-        public int State { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public StationTable()
+        {
+            this.PumpTables = new HashSet<PumpTable>();
+        }
     
-        public virtual StationTable StationTable { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Address { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PumpTable> PumpTables { get; set; }
     }
 }

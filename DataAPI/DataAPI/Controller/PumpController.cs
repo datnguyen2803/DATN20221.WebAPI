@@ -1,143 +1,213 @@
 ﻿using DataAPI.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Security.Cryptography;
-using System.Web.DynamicData;
 using System.Web.Http;
 
 namespace DataAPI.Controller
 {
     public class PumpController : ApiController
     {
-        /**
-         * GET methods
-         */
-        public IHttpActionResult GetPump (int _id)
-        {
-            PumpModel retModel = new PumpModel();
 
-            using (var myEntity = new DBDATNEntities())
+        private int RetrieveStationId(string StationName)
+        {
+            var myEntity = new DATNDBEntities();
+            StationTable retStation = myEntity.StationTables.Include("Id")
+                                      .Where(station => station.Name == StationName)
+                                      .Select(station => new StationTable()
+                                      {
+                                          Id = station.Id,
+                                          Name = station.Name,
+                                          Address = station.Address
+                                      }).FirstOrDefault<StationTable>();
+
+            if (retStation == null)
             {
-                retModel = myEntity.PumpTables.Include("Id")
-                    .Where(p => p.Id == _id)
-                    .Select(p => new PumpModel()
-                    {
-                        Id = p.Id,
-                        Area = p.Area,
-                        Code = p.Code,
-                        State = p.State
-                    }).FirstOrDefault<PumpModel>();
+                return 0;
+            }
+            else
+            {
+                return retStation.Id;
+            }
+        }
+
+        [HttpGet]
+        public IHttpActionResult All()
+        {
+            IList<PumpTable> pumpList = null;
+
+            using (var myEntity = new DATNDBEntities())
+            {
+                pumpList = myEntity.PumpTables.Include("Id")
+                            .Select(pump => new PumpTable()
+                            {
+                                Id = pump.Id,
+                                StationId = pump.StationId,
+                                Position = pump.Position,
+                                State = pump.State,
+                            }).ToList<PumpTable>();
             }
 
-            if(retModel == null) 
+            if(pumpList.Count == 0)
             {
                 return NotFound();
             }
-
-            return Ok(retModel);
+            else
+            {
+                return Ok(pumpList);
+            }
         }
 
-        public IHttpActionResult GetAllPumps()
+        [HttpGet]
+        public IHttpActionResult AllPump(string StationName)
         {
-            IList<PumpModel> pumps = null;
+            int stationId = RetrieveStationId(StationName);
 
-            using (var myEntity = new DBDATNEntities())
-            {
-                pumps = myEntity.PumpTables.Include("Id")
-                    .Select(p => new PumpModel()
-                    {
-                        Id = p.Id,
-                        Area = p.Area,
-                        Code = p.Code,
-                        State = p.State
-                    }).ToList<PumpModel>();
-            }
-
-            if (pumps.Count == 0)
+            if(stationId == 0)
             {
                 return NotFound();
             }
-
-            return Ok(pumps);
-
-        }
-    
-        /**
-         * POST methods
-         */ 
-        public IHttpActionResult PostNewPump(PumpModel _pump)
-        {
-            using (var myEntity = new DBDATNEntities())
+            else
             {
-                myEntity.PumpTables.Add(new PumpTable()
-                {
-                    Id = _pump.Id,
-                    Area = _pump.Area,
-                    Code = _pump.Code,
-                    State = _pump.State
-                });
+                IList<PumpTable> pumpList = null;
+                var myEntity = new DATNDBEntities();
+                pumpList = myEntity.PumpTables.Include("Id")
+                    .Where(pump => pump.StationId == stationId)
+                    .Select(pump => new PumpTable()
+                    {
+                        Id = pump.Id,
+                        StationId = pump.StationId,
+                        Position = pump.Position,
+                        State = pump.State,
+                    }).ToList<PumpTable>();
 
-                myEntity.SaveChanges();
+                if (pumpList.Count == 0)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return Ok(pumpList);
+                }
             }
 
-            return Ok();
         }
 
-        /**
-         * PUT methods
-         */
-        public IHttpActionResult PutPump(PumpModel _pump)
+        [HttpGet]
+        public IHttpActionResult OnePump(string StationName, string PumpName)
         {
-            using (var myEntity = new DBDATNEntities())
+            int stationId = RetrieveStationId(StationName);
+
+            if (stationId == 0)
             {
-                var oldPump = myEntity.PumpTables
-                    .Where(p => (p.Area == _pump.Area && p.Code == _pump.Code))
-                    .FirstOrDefault<PumpTable>();
+                return NotFound();
+            }
+            else
+            {
+                IList<PumpTable> pumpList = null;
+                var myEntity = new DATNDBEntities();
+                PumpTable retPump = new PumpTable();
 
-                if(oldPump != null)
+                retPump = myEntity.PumpTables.Include("Id")
+                    .Where(pump => (pump.StationId == stationId && pump.Position == PumpName))
+                    .Select(pump => new PumpTable()
+                    {
+                        Id = pump.Id,
+                        StationId = pump.StationId,
+                        Position = pump.Position,
+                        State = pump.State,
+                    }).FirstOrDefault<PumpTable>();
+
+                if (retPump == null)
                 {
-                    oldPump.State = _pump.State;
+                    return NotFound();
+                }
+                else
+                {
+                    return Ok(retPump);
+                }
+            }
+        }
 
+        [HttpPost]
+        public IHttpActionResult New([FromBody] PumpTable newPump)
+        {
+            PumpTable retPump = new PumpTable();
+
+            using (var myEntity = new DATNDBEntities())
+            {
+                retPump = myEntity.PumpTables.Include("Id")
+                    .Where(pump => (pump.StationId == newPump.StationId && pump.Position == newPump.Position))
+                    .Select(pump => new PumpTable()
+                    {
+                        Id = pump.Id,
+                        StationId = pump.StationId,
+                        Position = pump.Position,
+                        State = pump.State
+                    }).FirstOrDefault<PumpTable>();
+
+                // able to add station
+                if (retPump == null)
+                {
+                    myEntity.PumpTables.Add(newPump);
                     myEntity.SaveChanges();
+                    return Ok();
                 }
                 else
                 {
                     return NotFound();
                 }
             }
-
-            return Ok();
         }
 
-        /**
-         * DELETE methods
-         */
-        public IHttpActionResult DeletePump(PumpModel _pump)
+
+        [HttpPut]
+        public IHttpActionResult Edit([FromBody] PumpTable checkPump)
         {
-            using (var myEntity = new DBDATNEntities())
+            using (var myEntity = new DATNDBEntities())
             {
                 var oldPump = myEntity.PumpTables
-                    .Where(p => (p.Area == _pump.Area && p.Code == _pump.Code))
+                    .Where(pump => (pump.StationId == checkPump.StationId && pump.Position == checkPump.Position))
+                    .FirstOrDefault<PumpTable>();
+
+                if (oldPump != null)
+                {
+                    oldPump.State = checkPump.State;
+                    myEntity.SaveChanges();
+
+                    return Ok();
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+        }
+
+        [HttpDelete]
+        public IHttpActionResult Delete(PumpTable deletePump)
+        {
+            using (var myEntity = new DATNDBEntities())
+            {
+                var oldPump = myEntity.PumpTables
+                    .Where(pump => (pump.StationId == deletePump.StationId && pump.Position == deletePump.Position))
                     .FirstOrDefault<PumpTable>();
 
                 if (oldPump != null)
                 {
                     myEntity.Entry(oldPump).State = System.Data.Entity.EntityState.Deleted;
-
                     myEntity.SaveChanges();
+
+                    return Ok();
                 }
                 else
                 {
                     return NotFound();
                 }
             }
-
-            return Ok();
         }
-
     }
-
 }

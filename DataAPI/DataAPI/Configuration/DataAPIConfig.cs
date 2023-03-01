@@ -26,7 +26,7 @@ namespace DataAPI.Configuration
             //    );
 
             IHttpRoute defaultRoute = config.Routes.CreateRoute(
-                "api/{controller}/{id}",
+                "api/{controller}/{action}/{id}",
                 new { id = RouteParameter.Optional },
                 null
                 );
