@@ -12,19 +12,20 @@ namespace DataAPI.Controller
     public class StationController : ApiController
     {
         [HttpGet]
+        [ActionName("All")]
         public IHttpActionResult All()
         {
-            StationTable retStation = new StationTable();
+            StationModel retStation = new StationModel();
 
             using (var myEntity = new DATNDBEntities())
             {
                 retStation = myEntity.StationTables.Include("Id")
-                    .Select(station => new StationTable()
+                    .Select(station => new StationModel()
                     {
                         Id = station.Id,
                         Name = station.Name,
                         Address = station.Address
-                    }).FirstOrDefault<StationTable>();
+                    }).FirstOrDefault<StationModel>();
             }
             if (retStation == null)
             {
@@ -35,20 +36,21 @@ namespace DataAPI.Controller
         }
 
         [HttpGet]
+        [ActionName("Name")]
         public IHttpActionResult Name(string StationCode) 
         {
-            StationTable retStation = new StationTable();
+            StationModel retStation = new StationModel();
 
             using (var myEntity = new DATNDBEntities())
             {
                 retStation = myEntity.StationTables.Include("Id")
                     .Where(station => station.Name == StationCode)
-                    .Select(station => new StationTable()
+                    .Select(station => new StationModel()
                     {
                         Id = station.Id,
                         Name = station.Name,
                         Address = station.Address
-                    }).FirstOrDefault<StationTable>();
+                    }).FirstOrDefault<StationModel>();
             }
             if (retStation == null)
             {
@@ -59,25 +61,33 @@ namespace DataAPI.Controller
         }
 
         [HttpPost]
-        public IHttpActionResult New([FromBody] StationTable newStation)
+        [ActionName("New")]
+        public IHttpActionResult New([FromBody] StationModel newStation)
         {
-            StationTable retStation = new StationTable();
+            StationModel retStation = new StationModel();
 
             using (var myEntity = new DATNDBEntities())
             {
                 retStation = myEntity.StationTables.Include("Id")
                     .Where(station => station.Name == newStation.Name)
-                    .Select(station => new StationTable()
+                    .Select(station => new StationModel()
                     {
                         Id = station.Id,
                         Name = station.Name,
                         Address = station.Address
-                    }).FirstOrDefault<StationTable>();
+                    }).FirstOrDefault<StationModel>();
 
                 // able to add station
                 if (retStation == null)
                 {
-                    myEntity.StationTables.Add(newStation);
+                    var newStationTable = new StationTable()
+                    {
+                        Id = newStation.Id,
+                        Name = newStation.Name,
+                        Address = newStation.Address
+                    };
+
+                    myEntity.StationTables.Add(newStationTable);
                     myEntity.SaveChanges();
                     return Ok();
                 }
@@ -88,9 +98,9 @@ namespace DataAPI.Controller
             }
         }
 
-
         [HttpPut]
-        public IHttpActionResult Edit([FromBody] StationTable checkStation)
+        [ActionName("Edit")]
+        public IHttpActionResult Edit([FromBody] StationModel checkStation)
         {
             using (var myEntity = new DATNDBEntities())
             {
@@ -113,7 +123,8 @@ namespace DataAPI.Controller
         }
 
         [HttpDelete]
-        public IHttpActionResult Delete(StationTable deleteStation)
+        [ActionName("Delete")]
+        public IHttpActionResult Delete(StationModel deleteStation)
         {
             using (var myEntity = new DATNDBEntities())
             {

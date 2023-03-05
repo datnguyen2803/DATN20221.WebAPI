@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Web.Http;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using uPLibrary.Networking.M2Mqtt;
+using DataAPI.Models;
 
 namespace DataAPI.Controller
 {
@@ -58,21 +59,22 @@ namespace DataAPI.Controller
                 Debug.WriteLine(String.Format("[MQTT] Received: {0}", m_lastSubMessage));    
             }
 
-            PumpTable myPump = MessageToPump(_message);
+            PumpModel myPump = MessageToPump(_message);
             if(myPump == null) 
             {
                 //do nothing
             }
             else
             {
-                UpdateToDB(myPump);
+                bool res = UpdateToDB(myPump);
+                Debug.WriteLine("res = " + res);
             }
             
         }
 
-        private PumpTable MessageToPump(string message)
+        private PumpModel MessageToPump(string message)
         {
-            //PumpTable retPump= new PumpTable();
+            //PumpModel retPump= new PumpModel();
 
             if(message.Length != 11)
             {
@@ -99,7 +101,7 @@ namespace DataAPI.Controller
                 return null;
             }
 
-            return new PumpTable()
+            return new PumpModel()
             {
                 Id = 0,
                 StationId = stationId,
@@ -112,14 +114,14 @@ namespace DataAPI.Controller
         private int RetrieveStationId(string StationName)
         {
             var myEntity = new DATNDBEntities();
-            StationTable retStation = myEntity.StationTables.Include("Id")
+            var retStation = myEntity.StationTables.Include("Id")
                                       .Where(station => station.Name == StationName)
-                                      .Select(station => new StationTable()
+                                      .Select(station => new StationModel()
                                       {
                                           Id = station.Id,
                                           Name = station.Name,
                                           Address = station.Address
-                                      }).FirstOrDefault<StationTable>();
+                                      }).FirstOrDefault<StationModel>();
 
             if (retStation == null)
             {
@@ -131,7 +133,7 @@ namespace DataAPI.Controller
             }
         }
 
-        private bool UpdateToDB(PumpTable checkPump)
+        private bool UpdateToDB(PumpModel checkPump)
         {
             var myEntity = new DATNDBEntities();
             var oldPump = myEntity.PumpTables
@@ -142,11 +144,13 @@ namespace DataAPI.Controller
             {
                 oldPump.State = checkPump.State;
                 myEntity.SaveChanges();
+                Debug.WriteLine("Update successful!");
 
                 return true;
             }
             else
             {
+                Debug.WriteLine("Update fail!!!");
                 return false;
             }
 

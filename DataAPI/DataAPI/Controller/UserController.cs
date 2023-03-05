@@ -16,18 +16,18 @@ namespace DataAPI.Controller
         [ActionName ("GetAdmin")]
         public IHttpActionResult Admin()
         {
-            UserTable retUser = new UserTable();
+            UserModel retUser = new UserModel();
 
             using (var myEntity = new DATNDBEntities())
             {
                 retUser = myEntity.UserTables.Include("Id")
                     .Where(acc => acc.Name == "admin")
-                    .Select(acc => new UserTable()
+                    .Select(acc => new UserModel()
                     {
                         Id = acc.Id,
                         Name = acc.Name,
                         Password = acc.Password
-                    }).FirstOrDefault<UserTable>();
+                    }).FirstOrDefault<UserModel>();
             }
             if (retUser == null)
             {
@@ -37,19 +37,19 @@ namespace DataAPI.Controller
             return Ok(retUser);
         }
 
-        private bool CheckNameExisted(UserTable checkUser)
+        private bool CheckNameExisted(UserModel checkUser)
         {
-            UserTable retUser = new UserTable();
+            UserModel retUser = new UserModel();
             using (var myEntity = new DATNDBEntities())
             {
                 retUser = myEntity.UserTables.Include("Id")
                 .Where(acc => acc.Name == checkUser.Name)
-                .Select(acc => new UserTable()
+                .Select(acc => new UserModel()
                 {
                     Id = acc.Id,
                     Name = acc.Name,
                     Password = acc.Password
-                }).FirstOrDefault<UserTable>();
+                }).FirstOrDefault<UserModel>();
             }
 
             if (retUser == null)
@@ -62,19 +62,19 @@ namespace DataAPI.Controller
             }
         }
 
-        private bool CheckAccExisted(UserTable checkUser)
+        private bool CheckAccExisted(UserModel checkUser)
         {
-            UserTable retUser = new UserTable();
+            UserModel retUser = new UserModel();
             using (var myEntity = new DATNDBEntities())
             {
                 retUser = myEntity.UserTables.Include("Id")
                 .Where(acc => (acc.Name == checkUser.Name) && (acc.Password == checkUser.Password))
-                .Select(acc => new UserTable()
+                .Select(acc => new UserModel()
                 {
                     Id = acc.Id,
                     Name = acc.Name,
                     Password = acc.Password
-                }).FirstOrDefault<UserTable>();
+                }).FirstOrDefault<UserModel>();
             }
 
             if (retUser == null)
@@ -89,13 +89,19 @@ namespace DataAPI.Controller
 
         [HttpPost]
         [ActionName ("Register")]
-        public IHttpActionResult Register([FromBody] UserTable newUser)
+        public IHttpActionResult Register([FromBody] UserModel newUser)
         {
+            var newUserTable = new UserTable()
+            {
+                Id = newUser.Id,
+                Name = newUser.Name,
+                Password = newUser.Password
+            };
 
             if (CheckNameExisted(newUser) == false)
             {
                 var myEntity = new DATNDBEntities();
-                myEntity.UserTables.Add(newUser);
+                myEntity.UserTables.Add(newUserTable);
                 myEntity.SaveChanges();
                 Debug.WriteLine("Account registed successfully");
                 return Ok();
@@ -106,17 +112,17 @@ namespace DataAPI.Controller
                 return NotFound();
             }
 
-            //UserTable retUser = new UserTable();
+            //UserModel retUser = new UserModel();
             //using (var myEntity = new DATNDBEntities())
             //{
             //    retUser = myEntity.UserTables.Include("Id")
             //    .Where(acc => (acc.Name == newUser.Name))
-            //    .Select(acc => new UserTable()
+            //    .Select(acc => new UserModel()
             //    {
             //        Id = acc.Id,
             //        Name = acc.Name,
             //        Password = acc.Password
-            //    }).FirstOrDefault<UserTable>();
+            //    }).FirstOrDefault<UserModel>();
 
             //    // acc existed
             //    if (retUser != null)
@@ -133,7 +139,7 @@ namespace DataAPI.Controller
 
         [HttpPost]
         [ActionName("Login")]
-        public IHttpActionResult Login([FromBody] UserTable checkUser)
+        public IHttpActionResult Login([FromBody] UserModel checkUser)
         {
             if (CheckAccExisted(checkUser) == true)
             {
@@ -147,8 +153,9 @@ namespace DataAPI.Controller
 
         [HttpPut]
         [ActionName("Edit")]
-        public IHttpActionResult Edit([FromBody] UserTable checkUser)
+        public IHttpActionResult Edit([FromBody] UserModel checkUser)
         {
+
             using (var myEntity = new DATNDBEntities())
             {
                 var oldUser = myEntity.UserTables
@@ -171,7 +178,7 @@ namespace DataAPI.Controller
 
         [HttpDelete]
         [ActionName("Delete")]
-        public IHttpActionResult Delete(UserTable deleteUser)
+        public IHttpActionResult Delete(UserModel deleteUser)
         {
             using (var myEntity = new DATNDBEntities())
             {

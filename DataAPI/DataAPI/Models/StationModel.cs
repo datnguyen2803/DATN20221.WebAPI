@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace DataAPI.Models
 {
-    public class PumpModel
+    public class StationModel
     {
         public int Id { get; set; }
-        public int StationId { get; set; }
-        public string Position { get; set; }
-        public int State { get; set; }
+        public string Name { get; set; }
+        public string Address { get; set; }
     }
 }
