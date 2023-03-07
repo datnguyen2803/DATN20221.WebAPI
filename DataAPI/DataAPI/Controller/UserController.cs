@@ -6,12 +6,40 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Web.Http;
 
 namespace DataAPI.Controller
 {
     public class UserController : ApiController
     {
+
+        private string EncodeTo64(string password)
+        {
+            try
+            {
+                byte[] encData_byte = new byte[password.Length];
+                encData_byte = System.Text.Encoding.UTF8.GetBytes(password);
+                string encodedData = Convert.ToBase64String(encData_byte);
+                return encodedData;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error in base64Encode" + ex.Message);
+            }
+        }
+
+        private string DecodeFrom64(string encodedData)
+        {
+            System.Text.UTF8Encoding encoder = new System.Text.UTF8Encoding();
+            System.Text.Decoder utf8Decode = encoder.GetDecoder();
+            byte[] todecode_byte = Convert.FromBase64String(encodedData);
+            int charCount = utf8Decode.GetCharCount(todecode_byte, 0, todecode_byte.Length);
+            char[] decoded_char = new char[charCount];
+            utf8Decode.GetChars(todecode_byte, 0, todecode_byte.Length, decoded_char, 0);
+            string result = new String(decoded_char);
+            return result;
+        }
 
         private bool CheckNameExisted(UserModel checkUser)
         {
@@ -22,7 +50,6 @@ namespace DataAPI.Controller
                 .Where(acc => acc.Name == checkUser.Name)
                 .Select(acc => new UserModel()
                 {
-                    Id = acc.Id,
                     Name = acc.Name,
                     Password = acc.Password
                 }).FirstOrDefault<UserModel>();
@@ -47,7 +74,6 @@ namespace DataAPI.Controller
                 .Where(acc => (acc.Name == checkUser.Name) && (acc.Password == checkUser.Password))
                 .Select(acc => new UserModel()
                 {
-                    Id = acc.Id,
                     Name = acc.Name,
                     Password = acc.Password
                 }).FirstOrDefault<UserModel>();
@@ -75,7 +101,6 @@ namespace DataAPI.Controller
                     .Where(acc => acc.Name == "admin")
                     .Select(acc => new UserModel()
                     {
-                        Id = acc.Id,
                         Name = acc.Name,
                         Password = acc.Password
                     }).FirstOrDefault<UserModel>();
@@ -110,7 +135,6 @@ namespace DataAPI.Controller
                     .Where(acc => acc.Name == userName)
                     .Select(acc => new UserModel()
                     {
-                        Id = acc.Id,
                         Name = acc.Name,
                         Password = acc.Password
                     }).FirstOrDefault<UserModel>();
@@ -137,12 +161,8 @@ namespace DataAPI.Controller
         [ActionName ("Register")]
         public IHttpActionResult Register([FromBody] UserModel newUser)
         {
-            var newUserTable = new UserTable()
-            {
-                Id = newUser.Id,
-                Name = newUser.Name,
-                Password = newUser.Password
-            };
+            UserTable newUserTable = newUser.ToUserTable();
+            newUserTable.Password = EncodeTo64(newUserTable.Password);
 
             if (CheckNameExisted(newUser) == false)
             {
@@ -154,7 +174,7 @@ namespace DataAPI.Controller
                 {
                     Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
                     Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
-                    Data = null
+                    Data = newUserTable
                 });
             }
             else
@@ -162,7 +182,7 @@ namespace DataAPI.Controller
                 Debug.WriteLine("Account existed!");
                 return Ok(new ResponseModel
                 {
-                    Code = ConstantHelper.APIResponseCode.CODE_FAIL,
+                    Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_DUPLICATE,
                     Message = ConstantHelper.APIResponseMessage.MESSAGE_USER_DUPLICATE,
                     Data = null
                 });
@@ -238,8 +258,7 @@ namespace DataAPI.Controller
         }
 
         [HttpDelete]
-        [ActionName("Delete")]
-        public IHttpActionResult Delete(UserModel deleteUser)
+        public IHttpActionResult Delete([FromBody] UserModel deleteUser)
         {
             using (var myEntity = new DATNDBEntities())
             {

@@ -23,7 +23,6 @@ namespace DataAPI.Controller
                 stationList = myEntity.StationTables.Include("Id")
                             .Select(station => new StationModel()
                             {
-                                Id = station.Id,
                                 Name = station.Name,
                                 Address = station.Address,
                             }).ToList<StationModel>();
@@ -60,7 +59,6 @@ namespace DataAPI.Controller
                     .Where(station => station.Name == StationCode)
                     .Select(station => new StationModel()
                     {
-                        Id = station.Id,
                         Name = station.Name,
                         Address = station.Address
                     }).FirstOrDefault<StationModel>();
@@ -95,7 +93,6 @@ namespace DataAPI.Controller
                     .Where(station => station.Name == newStation.Name)
                     .Select(station => new StationModel()
                     {
-                        Id = station.Id,
                         Name = station.Name,
                         Address = station.Address
                     }).FirstOrDefault<StationModel>();
@@ -103,12 +100,7 @@ namespace DataAPI.Controller
                 // able to add station
                 if (retStation == null)
                 {
-                    var newStationTable = new StationTable()
-                    {
-                        Id = newStation.Id,
-                        Name = newStation.Name,
-                        Address = newStation.Address
-                    };
+                    var newStationTable = newStation.ToStationTable();
 
                     myEntity.StationTables.Add(newStationTable);
                     myEntity.SaveChanges();
@@ -123,13 +115,14 @@ namespace DataAPI.Controller
                 {
                     return Ok(new ResponseModel
                     {
-                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_DUPLICATE,
                         Message = ConstantHelper.APIResponseMessage.MESSAGE_STATION_DUPLICATE,
                         Data = null
                     });
                 }
             }
         }
+
 
         [HttpPut]
         [ActionName("Edit")]

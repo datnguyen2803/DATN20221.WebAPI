@@ -9,9 +9,11 @@
 
 namespace DataAPI
 {
+    using DataAPI.Models;
     using System;
     using System.Collections.Generic;
-    
+    using System.Linq;
+
     public partial class PumpTable
     {
         public int Id { get; set; }
@@ -20,5 +22,37 @@ namespace DataAPI
         public int State { get; set; }
     
         public virtual StationTable StationTable { get; set; }
+
+        public static string RetrieveStationName(int StationId)
+        {
+            var myEntity = new DATNDBEntities();
+            StationTable retStation = myEntity.StationTables.Include("Id")
+                                      .Where(station => station.Id == StationId)
+                                      .Select(station => new StationTable()
+                                      {
+                                          Id = station.Id,
+                                          Name = station.Name,
+                                          Address = station.Address
+                                      }).FirstOrDefault<StationTable>();
+
+            if (retStation == null)
+            {
+                return "";
+            }
+            else
+            {
+                return retStation.Name;
+            }
+        }
+
+        public PumpModel ToPumpModel() 
+        {
+            return new PumpModel
+            {
+                StationName = RetrieveStationName(StationId),
+                Position = Position,
+                State = State
+            };
+        }
     }
 }

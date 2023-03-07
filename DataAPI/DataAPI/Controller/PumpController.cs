@@ -1,4 +1,5 @@
-﻿using DataAPI.Models;
+﻿using DataAPI.Common;
+using DataAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,31 +12,8 @@ namespace DataAPI.Controller
 {
     public class PumpController : ApiController
     {
-
-        private int RetrieveStationId(string StationName)
-        {
-            var myEntity = new DATNDBEntities();
-            StationTable retStation = myEntity.StationTables.Include("Id")
-                                      .Where(station => station.Name == StationName)
-                                      .Select(station => new StationTable()
-                                      {
-                                          Id = station.Id,
-                                          Name = station.Name,
-                                          Address = station.Address
-                                      }).FirstOrDefault<StationTable>();
-
-            if (retStation == null)
-            {
-                return 0;
-            }
-            else
-            {
-                return retStation.Id;
-            }
-        }
-
         [HttpGet]
-        [ActionName("All")]
+        [ActionName("GetAll")]
         public IHttpActionResult All()
         {
             IList<PumpModel> pumpList = null;
@@ -43,13 +21,13 @@ namespace DataAPI.Controller
             using (var myEntity = new DATNDBEntities())
             {
                 pumpList = myEntity.PumpTables.Include("Id")
-                            .Select(pump => new PumpModel()
+                            .Select(pump => new PumpTable()
                             {
                                 Id = pump.Id,
                                 StationId = pump.StationId,
                                 Position = pump.Position,
                                 State = pump.State,
-                            }).ToList<PumpModel>();
+                            }.ToPumpModel()).ToList<PumpModel>();
             }
 
             if(pumpList.Count == 0)
@@ -63,14 +41,18 @@ namespace DataAPI.Controller
         }
 
         [HttpGet]
-        [ActionName("AllPump")]
-        public IHttpActionResult AllPump(string StationName)
+        public IHttpActionResult GetByStationName(string StationName)
         {
-            int stationId = RetrieveStationId(StationName);
+            int stationId = PumpModel.RetrieveStationId(StationName);
 
             if(stationId == 0)
             {
-                return NotFound();
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_STATION_NOT_FOUND,
+                    Data = null
+                });
             }
             else
             {
@@ -78,35 +60,48 @@ namespace DataAPI.Controller
                 var myEntity = new DATNDBEntities();
                 pumpList = myEntity.PumpTables.Include("Id")
                     .Where(pump => pump.StationId == stationId)
-                    .Select(pump => new PumpModel()
+                    .Select(pump => new PumpTable()
                     {
                         Id = pump.Id,
                         StationId = pump.StationId,
                         Position = pump.Position,
                         State = pump.State,
-                    }).ToList<PumpModel>();
+                    }.ToPumpModel()).ToList<PumpModel>();
 
                 if (pumpList.Count == 0)
                 {
-                    return NotFound();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_PUMP_EMPTY_FOUND,
+                        Data = null
+                    });
                 }
                 else
                 {
-                    return Ok(pumpList);
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = pumpList
+                    });
                 }
             }
-
         }
 
         [HttpGet]
-        [ActionName("OnePump")]
-        public IHttpActionResult OnePump(string StationName, string PumpName)
+        public IHttpActionResult GetByPumpName(string StationName, string Position)
         {
-            int stationId = RetrieveStationId(StationName);
+            int stationId = PumpModel.RetrieveStationId(StationName);
 
             if (stationId == 0)
             {
-                return NotFound();
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_STATION_NOT_FOUND,
+                    Data = null
+                });
             }
             else
             {
@@ -114,22 +109,32 @@ namespace DataAPI.Controller
                 PumpModel retPump = new PumpModel();
 
                 retPump = myEntity.PumpTables.Include("Id")
-                    .Where(pump => (pump.StationId == stationId && pump.Position == PumpName))
-                    .Select(pump => new PumpModel()
+                    .Where(pump => (pump.StationId == stationId && pump.Position == Position))
+                    .Select(pump => new PumpTable()
                     {
                         Id = pump.Id,
                         StationId = pump.StationId,
                         Position = pump.Position,
                         State = pump.State,
-                    }).FirstOrDefault<PumpModel>();
+                    }.ToPumpModel()).FirstOrDefault<PumpModel>();
 
                 if (retPump == null)
                 {
-                    return NotFound();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_PUMP_NOT_FOUND,
+                        Data = null
+                    });
                 }
                 else
                 {
-                    return Ok(retPump);
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = retPump
+                    });
                 }
             }
         }
@@ -139,37 +144,42 @@ namespace DataAPI.Controller
         public IHttpActionResult New([FromBody] PumpModel newPump)
         {
             PumpModel retPump = new PumpModel();
+            int newPumpStationId = PumpModel.RetrieveStationId(newPump.StationName);
 
             using (var myEntity = new DATNDBEntities())
             {
                 retPump = myEntity.PumpTables.Include("Id")
-                    .Where(pump => (pump.StationId == newPump.StationId && pump.Position == newPump.Position))
-                    .Select(pump => new PumpModel()
+                    .Where(pump => (pump.StationId == newPumpStationId && pump.Position == newPump.Position))
+                    .Select(pump => new PumpTable()
                     {
                         Id = pump.Id,
                         StationId = pump.StationId,
                         Position = pump.Position,
                         State = pump.State
-                    }).FirstOrDefault<PumpModel>();
-
-                var newPumpTable = new PumpTable()
-                {
-                    Id = newPump.Id,
-                    StationId = newPump.StationId,
-                    Position = newPump.Position,
-                    State = newPump.State
-                };
+                    }.ToPumpModel()).FirstOrDefault<PumpModel>();
 
                 // able to add station
                 if (retPump == null)
                 {
-                    myEntity.PumpTables.Add(newPumpTable);
+                    var retPumpTable = retPump.ToPumpTable();
+
+                    myEntity.PumpTables.Add(retPumpTable);
                     myEntity.SaveChanges();
-                    return Ok();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = null
+                    });
                 }
                 else
                 {
-                    return NotFound();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_DUPLICATE,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_PUMP_DUPLICATE,
+                        Data = null
+                    });
                 }
             }
         }
@@ -178,10 +188,11 @@ namespace DataAPI.Controller
         [ActionName("Edit")]
         public IHttpActionResult Edit([FromBody] PumpModel checkPump)
         {
+            int newPumpStationId = PumpModel.RetrieveStationId(checkPump.StationName);
             using (var myEntity = new DATNDBEntities())
             {
                 var oldPump = myEntity.PumpTables
-                    .Where(pump => (pump.StationId == checkPump.StationId && pump.Position == checkPump.Position))
+                    .Where(pump => (pump.StationId == newPumpStationId && pump.Position == checkPump.Position))
                     .FirstOrDefault<PumpTable>();
 
                 if (oldPump != null)
@@ -189,23 +200,33 @@ namespace DataAPI.Controller
                     oldPump.State = checkPump.State;
                     myEntity.SaveChanges();
 
-                    return Ok();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = null
+                    });
                 }
                 else
                 {
-                    return NotFound();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_PUMP_NOT_FOUND,
+                        Data = null
+                    });
                 }
             }
         }
 
         [HttpDelete]
-        [ActionName("Delete")]
         public IHttpActionResult Delete(PumpModel deletePump)
         {
+            int newPumpStationId = PumpModel.RetrieveStationId(deletePump.StationName);
             using (var myEntity = new DATNDBEntities())
             {
                 var oldPump = myEntity.PumpTables
-                    .Where(pump => (pump.StationId == deletePump.StationId && pump.Position == deletePump.Position))
+                    .Where(pump => (pump.StationId == newPumpStationId && pump.Position == deletePump.Position))
                     .FirstOrDefault<PumpTable>();
 
                 if (oldPump != null)
@@ -213,11 +234,21 @@ namespace DataAPI.Controller
                     myEntity.Entry(oldPump).State = System.Data.Entity.EntityState.Deleted;
                     myEntity.SaveChanges();
 
-                    return Ok();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = null
+                    });
                 }
                 else
                 {
-                    return NotFound();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_PUMP_NOT_FOUND,
+                        Data = null
+                    });
                 }
             }
         }

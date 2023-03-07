@@ -94,7 +94,7 @@ namespace DataAPI.Controller
                 return null;
             }
             
-            int stationId = RetrieveStationId(stationName);
+            int stationId = PumpModel.RetrieveStationId(stationName);
             if(stationId == 0) 
             {
                 // not found any station
@@ -103,41 +103,19 @@ namespace DataAPI.Controller
 
             return new PumpModel()
             {
-                Id = 0,
-                StationId = stationId,
+                StationName = stationName,
                 Position = pumpPosition,
                 State = pumpState
             };
 
         }
 
-        private int RetrieveStationId(string StationName)
-        {
-            var myEntity = new DATNDBEntities();
-            var retStation = myEntity.StationTables.Include("Id")
-                                      .Where(station => station.Name == StationName)
-                                      .Select(station => new StationModel()
-                                      {
-                                          Id = station.Id,
-                                          Name = station.Name,
-                                          Address = station.Address
-                                      }).FirstOrDefault<StationModel>();
-
-            if (retStation == null)
-            {
-                return 0;
-            }
-            else
-            {
-                return retStation.Id;
-            }
-        }
-
         private bool UpdateToDB(PumpModel checkPump)
         {
+            int stationId = PumpModel.RetrieveStationId(checkPump.StationName);
             var myEntity = new DATNDBEntities();
             var oldPump = myEntity.PumpTables
-                    .Where(pump => (pump.StationId == checkPump.StationId && pump.Position == checkPump.Position))
+                    .Where(pump => (pump.StationId == stationId && pump.Position == checkPump.Position))
                     .FirstOrDefault<PumpTable>();
 
             if (oldPump != null)

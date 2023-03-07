@@ -9,9 +9,48 @@ namespace DataAPI.Models
 {
     public class PumpModel
     {
-        public int Id { get; set; }
-        public int StationId { get; set; }
+        public string StationName { get; set; }
         public string Position { get; set; }
         public int State { get; set; }
+
+        public PumpModel() 
+        {
+            StationName = string.Empty;
+            Position = string.Empty;
+            State = 0;
+        }
+
+        public static int RetrieveStationId(string StationName)
+        {
+            var myEntity = new DATNDBEntities();
+            StationTable retStation = myEntity.StationTables.Include("Id")
+                                      .Where(station => station.Name == StationName)
+                                      .Select(station => new StationTable()
+                                      {
+                                          Id = station.Id,
+                                          Name = station.Name,
+                                          Address = station.Address
+                                      }).FirstOrDefault<StationTable>();
+
+            if (retStation == null)
+            {
+                return -1;
+            }
+            else
+            {
+                return retStation.Id;
+            }
+        }
+
+        public PumpTable ToPumpTable() 
+        {
+            return new PumpTable
+            {
+                Id = 0,
+                StationId = RetrieveStationId(StationName),
+                Position = Position,
+                State = State,
+            };
+        }
     }
 }
