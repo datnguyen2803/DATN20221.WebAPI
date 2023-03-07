@@ -105,6 +105,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\ConstantHelper.cs" />
     <Compile Include="Configuration\DataAPIConfig.cs" />
     <Compile Include="Controller\HelloController.cs" />
     <Compile Include="Controller\MQTTController.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Common\ResponseModel.cs" />
     <Compile Include="Models\StationModel.cs" />
     <Compile Include="Models\UserModel.cs" />
     <Compile Include="Models\PumpModel.cs" />

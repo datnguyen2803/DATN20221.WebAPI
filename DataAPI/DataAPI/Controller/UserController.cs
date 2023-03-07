@@ -1,4 +1,5 @@
-﻿using DataAPI.Models;
+﻿using DataAPI.Common;
+using DataAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,31 +12,6 @@ namespace DataAPI.Controller
 {
     public class UserController : ApiController
     {
-
-        [HttpGet]
-        [ActionName ("GetAdmin")]
-        public IHttpActionResult Admin()
-        {
-            UserModel retUser = new UserModel();
-
-            using (var myEntity = new DATNDBEntities())
-            {
-                retUser = myEntity.UserTables.Include("Id")
-                    .Where(acc => acc.Name == "admin")
-                    .Select(acc => new UserModel()
-                    {
-                        Id = acc.Id,
-                        Name = acc.Name,
-                        Password = acc.Password
-                    }).FirstOrDefault<UserModel>();
-            }
-            if (retUser == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(retUser);
-        }
 
         private bool CheckNameExisted(UserModel checkUser)
         {
@@ -87,6 +63,76 @@ namespace DataAPI.Controller
             }
         }
 
+        [HttpGet]
+        [ActionName ("GetAdmin")]
+        public IHttpActionResult Admin()
+        {
+            UserModel retUser = new UserModel();
+
+            using (var myEntity = new DATNDBEntities())
+            {
+                retUser = myEntity.UserTables.Include("Id")
+                    .Where(acc => acc.Name == "admin")
+                    .Select(acc => new UserModel()
+                    {
+                        Id = acc.Id,
+                        Name = acc.Name,
+                        Password = acc.Password
+                    }).FirstOrDefault<UserModel>();
+            }
+            if (retUser == null)
+            {
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_FAIL,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_USER_WRONG_NAME,
+                    Data = null
+                });
+            }
+
+            return Ok(new ResponseModel
+            {
+                Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                Data = retUser
+            });
+        }
+
+        [HttpGet]
+        [ActionName("Info")]
+        public IHttpActionResult Info(string userName)
+        {
+            UserModel retUser = new UserModel();
+
+            using (var myEntity = new DATNDBEntities())
+            {
+                retUser = myEntity.UserTables.Include("Id")
+                    .Where(acc => acc.Name == userName)
+                    .Select(acc => new UserModel()
+                    {
+                        Id = acc.Id,
+                        Name = acc.Name,
+                        Password = acc.Password
+                    }).FirstOrDefault<UserModel>();
+            }
+            if (retUser == null)
+            {
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_FAIL,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_USER_WRONG_NAME,
+                    Data = null
+                });
+            }
+
+            return Ok(new ResponseModel
+            {
+                Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                Data = retUser
+            });
+        }
+
         [HttpPost]
         [ActionName ("Register")]
         public IHttpActionResult Register([FromBody] UserModel newUser)
@@ -104,50 +150,56 @@ namespace DataAPI.Controller
                 myEntity.UserTables.Add(newUserTable);
                 myEntity.SaveChanges();
                 Debug.WriteLine("Account registed successfully");
-                return Ok();
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                    Data = null
+                });
             }
             else
             {
                 Debug.WriteLine("Account existed!");
-                return NotFound();
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_FAIL,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_USER_DUPLICATE,
+                    Data = null
+                });
             }
-
-            //UserModel retUser = new UserModel();
-            //using (var myEntity = new DATNDBEntities())
-            //{
-            //    retUser = myEntity.UserTables.Include("Id")
-            //    .Where(acc => (acc.Name == newUser.Name))
-            //    .Select(acc => new UserModel()
-            //    {
-            //        Id = acc.Id,
-            //        Name = acc.Name,
-            //        Password = acc.Password
-            //    }).FirstOrDefault<UserModel>();
-
-            //    // acc existed
-            //    if (retUser != null)
-            //    {
-            //        myEntity.UserTables.Add(retUser);
-            //        return Ok(retUser);
-            //    }
-            //    else
-            //    {
-            //        return NotFound();
-            //    }
-            //}
         }
 
         [HttpPost]
         [ActionName("Login")]
         public IHttpActionResult Login([FromBody] UserModel checkUser)
         {
+            if(CheckNameExisted(checkUser) == false)
+            {
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_FAIL,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_USER_WRONG_NAME,
+                    Data = null
+                });
+            }
+
             if (CheckAccExisted(checkUser) == true)
             {
-                return Ok();
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                    Data = null
+                });
             }
             else
             {
-                return NotFound();
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_FAIL,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_USER_WRONG_PASS,
+                    Data = null
+                });
             }
         }
 
@@ -155,7 +207,6 @@ namespace DataAPI.Controller
         [ActionName("Edit")]
         public IHttpActionResult Edit([FromBody] UserModel checkUser)
         {
-
             using (var myEntity = new DATNDBEntities())
             {
                 var oldUser = myEntity.UserTables
@@ -167,11 +218,21 @@ namespace DataAPI.Controller
                     oldUser.Password = checkUser.Password;
 
                     myEntity.SaveChanges();
-                    return Ok();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = null
+                    });
                 }
                 else
                 {
-                    return NotFound();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_USER_WRONG_NAME,
+                        Data = null
+                    });
                 }
             }
         }
@@ -189,16 +250,25 @@ namespace DataAPI.Controller
                 if (oldUser != null)
                 {
                     myEntity.Entry(oldUser).State = System.Data.Entity.EntityState.Deleted;
-
                     myEntity.SaveChanges();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = null
+                    });
                 }
                 else
                 {
-                    return NotFound();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_FAIL,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_USER_WRONG_PASS,
+                        Data = null
+                    });
                 }
             }
 
-            return Ok();
         }
     }
 }

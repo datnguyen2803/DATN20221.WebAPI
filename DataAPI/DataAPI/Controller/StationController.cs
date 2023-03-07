@@ -1,4 +1,5 @@
-﻿using DataAPI.Models;
+﻿using DataAPI.Common;
+using DataAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,32 +13,44 @@ namespace DataAPI.Controller
     public class StationController : ApiController
     {
         [HttpGet]
-        [ActionName("All")]
-        public IHttpActionResult All()
+        [ActionName("GetAll")]
+        public IHttpActionResult GetAll()
         {
-            StationModel retStation = new StationModel();
+            IList<StationModel> stationList = null;
 
             using (var myEntity = new DATNDBEntities())
             {
-                retStation = myEntity.StationTables.Include("Id")
-                    .Select(station => new StationModel()
-                    {
-                        Id = station.Id,
-                        Name = station.Name,
-                        Address = station.Address
-                    }).FirstOrDefault<StationModel>();
-            }
-            if (retStation == null)
-            {
-                return NotFound();
+                stationList = myEntity.StationTables.Include("Id")
+                            .Select(station => new StationModel()
+                            {
+                                Id = station.Id,
+                                Name = station.Name,
+                                Address = station.Address,
+                            }).ToList<StationModel>();
             }
 
-            return Ok(retStation);
+            if (stationList.Count == 0)
+            {
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_STATION_EMPTY_FOUND,
+                    Data = null
+                });
+            }
+            else
+            {
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                    Data = stationList
+                });
+            }
         }
 
         [HttpGet]
-        [ActionName("Name")]
-        public IHttpActionResult Name(string StationCode) 
+        public IHttpActionResult GetByName(string StationCode) 
         {
             StationModel retStation = new StationModel();
 
@@ -54,10 +67,20 @@ namespace DataAPI.Controller
             }
             if (retStation == null)
             {
-                return NotFound();
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_STATION_NOT_FOUND,
+                    Data = null
+                });
             }
 
-            return Ok(retStation);
+            return Ok(new ResponseModel
+            {
+                Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                Data = retStation
+            });
         }
 
         [HttpPost]
@@ -89,11 +112,21 @@ namespace DataAPI.Controller
 
                     myEntity.StationTables.Add(newStationTable);
                     myEntity.SaveChanges();
-                    return Ok();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = null
+                    });
                 }
                 else
                 {
-                    return NotFound();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_STATION_DUPLICATE,
+                        Data = null
+                    });
                 }
             }
         }
@@ -113,17 +146,26 @@ namespace DataAPI.Controller
                     oldStation.Address = checkStation.Address;
                     myEntity.SaveChanges();
 
-                    return Ok();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = null
+                    });
                 }
                 else
                 {
-                    return NotFound();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_STATION_NOT_FOUND,
+                        Data = null
+                    });
                 }
             }
         }
 
         [HttpDelete]
-        [ActionName("Delete")]
         public IHttpActionResult Delete(StationModel deleteStation)
         {
             using (var myEntity = new DATNDBEntities())
@@ -137,11 +179,21 @@ namespace DataAPI.Controller
                     myEntity.Entry(oldStation).State = System.Data.Entity.EntityState.Deleted;
                     myEntity.SaveChanges();
 
-                    return Ok();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = null
+                    });
                 }
                 else
                 {
-                    return NotFound();
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_FAIL,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_STATION_NOT_FOUND,
+                        Data = null
+                    });
                 }
             }
         }
