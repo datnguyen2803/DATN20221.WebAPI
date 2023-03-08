@@ -16,6 +16,7 @@ namespace DataAPI
         {
             GlobalConfiguration.Configure(DataAPIConfig.Register);
             GlobalConfiguration.Configure(DataAPIConfig.MQTTRegister);
+            GlobalConfiguration.Configure(SwaggerConfig.Register);
         }
 
         protected void Session_Start(object sender, EventArgs e)
