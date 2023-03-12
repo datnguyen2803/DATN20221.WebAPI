@@ -16,14 +16,14 @@ namespace DataAPI
 
     public partial class PumpTable
     {
-        public int Id { get; set; }
-        public int StationId { get; set; }
+        public System.Guid Id { get; set; }
+        public System.Guid StationId { get; set; }
         public string Position { get; set; }
         public int State { get; set; }
     
         public virtual StationTable StationTable { get; set; }
 
-        public static string RetrieveStationName(int StationId)
+        public static string RetrieveStationName(Guid StationId)
         {
             var myEntity = new DATNDBEntities();
             StationTable retStation = myEntity.StationTables.Include("Id")
@@ -45,7 +45,7 @@ namespace DataAPI
             }
         }
 
-        public PumpModel ToPumpModel() 
+        public PumpModel ToPumpModel()
         {
             return new PumpModel
             {

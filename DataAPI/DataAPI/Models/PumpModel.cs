@@ -20,7 +20,7 @@ namespace DataAPI.Models
             State = 0;
         }
 
-        public static int RetrieveStationId(string StationName)
+        public static Guid RetrieveStationId(string StationName)
         {
             var myEntity = new DATNDBEntities();
             StationTable retStation = myEntity.StationTables.Include("Id")
@@ -34,7 +34,7 @@ namespace DataAPI.Models
 
             if (retStation == null)
             {
-                return -1;
+                return Guid.Empty;
             }
             else
             {
@@ -46,7 +46,7 @@ namespace DataAPI.Models
         {
             return new PumpTable
             {
-                Id = 0,
+                Id = Guid.NewGuid(),
                 StationId = RetrieveStationId(StationName),
                 Position = Position,
                 State = State,

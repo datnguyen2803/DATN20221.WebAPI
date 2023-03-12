@@ -68,6 +68,8 @@ namespace DataAPI.Controller
         private bool CheckAccExisted(UserModel checkUser)
         {
             UserModel retUser = new UserModel();
+            checkUser.Password = EncodeTo64(checkUser.Password);
+
             using (var myEntity = new DATNDBEntities())
             {
                 retUser = myEntity.UserTables.Include("Id")

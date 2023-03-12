@@ -93,9 +93,9 @@ namespace DataAPI.Controller
                 // do nothing
                 return null;
             }
-            
-            int stationId = PumpModel.RetrieveStationId(stationName);
-            if(stationId == 0) 
+
+            Guid stationId = PumpModel.RetrieveStationId(stationName);
+            if(stationId == null) 
             {
                 // not found any station
                 return null;
@@ -112,7 +112,7 @@ namespace DataAPI.Controller
 
         private bool UpdateToDB(PumpModel checkPump)
         {
-            int stationId = PumpModel.RetrieveStationId(checkPump.StationName);
+            Guid stationId = PumpModel.RetrieveStationId(checkPump.StationName);
             var myEntity = new DATNDBEntities();
             var oldPump = myEntity.PumpTables
                     .Where(pump => (pump.StationId == stationId && pump.Position == checkPump.Position))

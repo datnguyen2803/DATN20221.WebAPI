@@ -43,9 +43,9 @@ namespace DataAPI.Controller
         [HttpGet]
         public IHttpActionResult GetByStationName(string StationName)
         {
-            int stationId = PumpModel.RetrieveStationId(StationName);
+            Guid stationId = PumpModel.RetrieveStationId(StationName);
 
-            if(stationId == 0)
+            if(stationId == Guid.Empty)
             {
                 return Ok(new ResponseModel
                 {
@@ -92,9 +92,9 @@ namespace DataAPI.Controller
         [HttpGet]
         public IHttpActionResult GetByPumpName(string StationName, string Position)
         {
-            int stationId = PumpModel.RetrieveStationId(StationName);
+            Guid stationId = PumpModel.RetrieveStationId(StationName);
 
-            if (stationId == 0)
+            if (stationId == Guid.Empty)
             {
                 return Ok(new ResponseModel
                 {
@@ -144,7 +144,7 @@ namespace DataAPI.Controller
         public IHttpActionResult New([FromBody] PumpModel newPump)
         {
             PumpModel retPump = new PumpModel();
-            int newPumpStationId = PumpModel.RetrieveStationId(newPump.StationName);
+            Guid newPumpStationId = PumpModel.RetrieveStationId(newPump.StationName);
 
             using (var myEntity = new DATNDBEntities())
             {
@@ -188,7 +188,7 @@ namespace DataAPI.Controller
         [ActionName("Edit")]
         public IHttpActionResult Edit([FromBody] PumpModel checkPump)
         {
-            int newPumpStationId = PumpModel.RetrieveStationId(checkPump.StationName);
+            Guid newPumpStationId = PumpModel.RetrieveStationId(checkPump.StationName);
             using (var myEntity = new DATNDBEntities())
             {
                 var oldPump = myEntity.PumpTables
@@ -222,7 +222,7 @@ namespace DataAPI.Controller
         [HttpDelete]
         public IHttpActionResult Delete(PumpModel deletePump)
         {
-            int newPumpStationId = PumpModel.RetrieveStationId(deletePump.StationName);
+            Guid newPumpStationId = PumpModel.RetrieveStationId(deletePump.StationName);
             using (var myEntity = new DATNDBEntities())
             {
                 var oldPump = myEntity.PumpTables

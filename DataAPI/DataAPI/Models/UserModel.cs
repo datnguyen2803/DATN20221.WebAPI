@@ -22,7 +22,7 @@ namespace DataAPI.Models
         {
             return new UserTable
             {
-                Id = 0,
+                Id = Guid.NewGuid(),
                 Name = Name,
                 Password = Password
             };

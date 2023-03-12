@@ -22,7 +22,7 @@ namespace DataAPI.Models
         {
             return new StationTable
             {
-                Id = 0,
+                Id = Guid.NewGuid(),
                 Name = Name,
                 Address = Address
             };

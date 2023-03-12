@@ -5,10 +5,10 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="257a79990d744b0c8383e3974b777ed9" Name="Diagram1">
-        <EntityTypeShape EntityType="DATNDBModel.PumpTable" Width="1.5" PointX="3" PointY="0.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="DATNDBModel.StationTable" Width="1.5" PointX="0.75" PointY="1" IsExpanded="true" />
-        <EntityTypeShape EntityType="DATNDBModel.UserTable" Width="1.5" PointX="0.75" PointY="3.75" IsExpanded="true" />
-        <AssociationConnector Association="DATNDBModel.FK__PumpTable__Stati__3B75D760" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="DATNDBModel.PumpTable" Width="1.5" PointX="3" PointY="0.875" />
+        <EntityTypeShape EntityType="DATNDBModel.StationTable" Width="1.5" PointX="0.75" PointY="1" />
+        <EntityTypeShape EntityType="DATNDBModel.UserTable" Width="1.5" PointX="0.75" PointY="3.75" />
+        <AssociationConnector Association="DATNDBModel.FK_PumpTable_StationTable" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

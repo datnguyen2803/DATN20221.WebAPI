@@ -4,13 +4,13 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="DATNDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="DATNDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="PumpTable">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="StationId" Type="int" Nullable="false" />
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="StationId" Type="uniqueidentifier" Nullable="false" />
           <Property Name="Position" Type="varchar" MaxLength="2" Nullable="false" />
           <Property Name="State" Type="int" Nullable="false" />
         </EntityType>
@@ -18,19 +18,19 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name" Type="varchar" MaxLength="1" Nullable="false" />
-          <Property Name="Address" Type="varchar" MaxLength="50" />
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="2" Nullable="false" />
+          <Property Name="Address" Type="ntext" />
         </EntityType>
         <EntityType Name="UserTable">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="Password" Type="varchar" MaxLength="50" Nullable="false" />
         </EntityType>
-        <Association Name="FK__PumpTable__Stati__3B75D760">
+        <Association Name="FK_PumpTable_StationTable">
           <End Role="StationTable" Type="Self.StationTable" Multiplicity="1" />
           <End Role="PumpTable" Type="Self.PumpTable" Multiplicity="*" />
           <ReferentialConstraint>
@@ -46,46 +46,54 @@
           <EntitySet Name="PumpTable" EntityType="Self.PumpTable" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="StationTable" EntityType="Self.StationTable" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserTable" EntityType="Self.UserTable" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__PumpTable__Stati__3B75D760" Association="Self.FK__PumpTable__Stati__3B75D760">
+          <AssociationSet Name="FK_PumpTable_StationTable" Association="Self.FK_PumpTable_StationTable">
             <End Role="StationTable" EntitySet="StationTable" />
             <End Role="PumpTable" EntitySet="PumpTable" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="DATNDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="DATNDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="PumpTables" EntityType="DATNDBModel.PumpTable" />
+          <EntitySet Name="StationTables" EntityType="DATNDBModel.StationTable" />
+          <EntitySet Name="UserTables" EntityType="DATNDBModel.UserTable" />
+          <AssociationSet Name="FK_PumpTable_StationTable" Association="DATNDBModel.FK_PumpTable_StationTable">
+            <End Role="StationTable" EntitySet="StationTables" />
+            <End Role="PumpTable" EntitySet="PumpTables" />
+          </AssociationSet>
+        </EntityContainer>
         <EntityType Name="PumpTable">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="StationId" Type="Int32" Nullable="false" />
-          <Property Name="Position" Type="String" MaxLength="2" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="StationId" Type="Guid" Nullable="false" />
+          <Property Name="Position" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="false" />
           <Property Name="State" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="StationTable" Relationship="Self.FK__PumpTable__Stati__3B75D760" FromRole="PumpTable" ToRole="StationTable" />
+          <NavigationProperty Name="StationTable" Relationship="DATNDBModel.FK_PumpTable_StationTable" FromRole="PumpTable" ToRole="StationTable" />
         </EntityType>
         <EntityType Name="StationTable">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="1" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Address" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="PumpTables" Relationship="Self.FK__PumpTable__Stati__3B75D760" FromRole="StationTable" ToRole="PumpTable" />
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="Address" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="PumpTables" Relationship="DATNDBModel.FK_PumpTable_StationTable" FromRole="StationTable" ToRole="PumpTable" />
         </EntityType>
         <EntityType Name="UserTable">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Password" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Password" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
-        <Association Name="FK__PumpTable__Stati__3B75D760">
-          <End Role="StationTable" Type="Self.StationTable" Multiplicity="1" />
-          <End Role="PumpTable" Type="Self.PumpTable" Multiplicity="*" />
+        <Association Name="FK_PumpTable_StationTable">
+          <End Type="DATNDBModel.StationTable" Role="StationTable" Multiplicity="1" />
+          <End Type="DATNDBModel.PumpTable" Role="PumpTable" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="StationTable">
               <PropertyRef Name="Id" />
@@ -95,15 +103,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="DATNDBEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="PumpTables" EntityType="Self.PumpTable" />
-          <EntitySet Name="StationTables" EntityType="Self.StationTable" />
-          <EntitySet Name="UserTables" EntityType="Self.UserTable" />
-          <AssociationSet Name="FK__PumpTable__Stati__3B75D760" Association="Self.FK__PumpTable__Stati__3B75D760">
-            <End Role="StationTable" EntitySet="StationTables" />
-            <End Role="PumpTable" EntitySet="PumpTables" />
-          </AssociationSet>
-        </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -113,28 +112,28 @@
           <EntitySetMapping Name="PumpTables">
             <EntityTypeMapping TypeName="DATNDBModel.PumpTable">
               <MappingFragment StoreEntitySet="PumpTable">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="StationId" ColumnName="StationId" />
-                <ScalarProperty Name="Position" ColumnName="Position" />
                 <ScalarProperty Name="State" ColumnName="State" />
+                <ScalarProperty Name="Position" ColumnName="Position" />
+                <ScalarProperty Name="StationId" ColumnName="StationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="StationTables">
             <EntityTypeMapping TypeName="DATNDBModel.StationTable">
               <MappingFragment StoreEntitySet="StationTable">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="UserTables">
             <EntityTypeMapping TypeName="DATNDBModel.UserTable">
               <MappingFragment StoreEntitySet="UserTable">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
