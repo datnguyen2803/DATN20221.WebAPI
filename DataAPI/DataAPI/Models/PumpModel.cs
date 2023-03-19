@@ -7,6 +7,33 @@ using System.Threading.Tasks;
 
 namespace DataAPI.Models
 {
+
+    public class TempPump
+    {
+        public System.Guid Id { get; set; }
+        public System.Guid StationId { get; set; }
+        public string Position { get; set; }
+        public int State { get; set; }
+
+        public TempPump()
+        {
+            Id = Guid.Empty;
+            StationId = Guid.Empty;
+            Position = string.Empty;
+            State = 0;
+        }
+
+        public PumpModel ToPumpModel()
+        {
+            return new PumpModel
+            {
+                StationName = PumpModel.RetrieveStationName(StationId),
+                Position = Position,
+                State = State
+            };
+        }
+    }
+
     public class PumpModel
     {
         public string StationName { get; set; }
@@ -23,14 +50,14 @@ namespace DataAPI.Models
         public static Guid RetrieveStationId(string StationName)
         {
             var myEntity = new DATNDBEntities();
-            StationTable retStation = myEntity.StationTables.Include("Id")
+            TempStation retStation = myEntity.StationTables.Include("Id")
                                       .Where(station => station.Name == StationName)
-                                      .Select(station => new StationTable()
+                                      .Select(station => new TempStation()
                                       {
                                           Id = station.Id,
                                           Name = station.Name,
                                           Address = station.Address
-                                      }).FirstOrDefault<StationTable>();
+                                      }).FirstOrDefault();
 
             if (retStation == null)
             {
@@ -42,7 +69,29 @@ namespace DataAPI.Models
             }
         }
 
-        public PumpTable ToPumpTable() 
+        public static string RetrieveStationName(Guid StationId)
+        {
+            var myEntity = new DATNDBEntities();
+            TempStation retStation = myEntity.StationTables.Include("Id")
+                                      .Where(station => station.Id == StationId)
+                                      .Select(station => new TempStation()
+                                      {
+                                          Id = station.Id,
+                                          Name = station.Name,
+                                          Address = station.Address
+                                      }).FirstOrDefault();
+
+            if (retStation == null)
+            {
+                return "";
+            }
+            else
+            {
+                return retStation.Name;
+            }
+        }
+    
+        public PumpTable ToPumpTable()
         {
             return new PumpTable
             {

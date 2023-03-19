@@ -16,7 +16,7 @@ namespace DataAPI.Controller
         [ActionName("GetAll")]
         public IHttpActionResult GetAll()
         {
-            IList<StationModel> stationList = null;
+            List<StationModel> stationList = new List<StationModel>();
 
             using (var myEntity = new DATNDBEntities())
             {

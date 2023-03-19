@@ -16,27 +16,43 @@ namespace DataAPI.Controller
         [ActionName("GetAll")]
         public IHttpActionResult All()
         {
-            IList<PumpModel> pumpList = null;
+            List<PumpModel> pumpList = new List<PumpModel>();
+            List<TempPump> tempPumpList = new List<TempPump>();
 
             using (var myEntity = new DATNDBEntities())
-            {
-                pumpList = myEntity.PumpTables.Include("Id")
-                            .Select(pump => new PumpTable()
+                        {
+                tempPumpList = myEntity.PumpTables.Include("Id")
+                            .Select(pump => new TempPump()
                             {
                                 Id = pump.Id,
                                 StationId = pump.StationId,
                                 Position = pump.Position,
                                 State = pump.State,
-                            }.ToPumpModel()).ToList<PumpModel>();
+                            }).ToList();
             }
-
-            if(pumpList.Count == 0)
+            
+            if(tempPumpList == null)
             {
-                return NotFound();
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_PUMP_EMPTY_FOUND,
+                    Data = null
+                });
             }
             else
             {
-                return Ok(pumpList);
+                foreach (TempPump tP in tempPumpList)
+                {
+                    pumpList.Add(tP.ToPumpModel());
+                }
+
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                    Data = pumpList
+                });
             }
         }
 
@@ -56,19 +72,26 @@ namespace DataAPI.Controller
             }
             else
             {
-                IList<PumpModel> pumpList = null;
+                List<PumpModel> pumpList = new List<PumpModel>();
+                List<TempPump> tempPumpList = new List<TempPump>();
+
                 var myEntity = new DATNDBEntities();
-                pumpList = myEntity.PumpTables.Include("Id")
+                tempPumpList = myEntity.PumpTables.Include("Id")
                     .Where(pump => pump.StationId == stationId)
-                    .Select(pump => new PumpTable()
+                    .Select(pump => new TempPump()
                     {
                         Id = pump.Id,
                         StationId = pump.StationId,
                         Position = pump.Position,
                         State = pump.State,
-                    }.ToPumpModel()).ToList<PumpModel>();
+                    }).ToList<TempPump>();
 
-                if (pumpList.Count == 0)
+                foreach (TempPump tP in tempPumpList)
+                {
+                    pumpList.Add(tP.ToPumpModel());
+                }
+
+                if (pumpList == null)
                 {
                     return Ok(new ResponseModel
                     {
@@ -107,18 +130,19 @@ namespace DataAPI.Controller
             {
                 var myEntity = new DATNDBEntities();
                 PumpModel retPump = new PumpModel();
+                TempPump tempPump = new TempPump();
 
-                retPump = myEntity.PumpTables.Include("Id")
+                tempPump = myEntity.PumpTables.Include("Id")
                     .Where(pump => (pump.StationId == stationId && pump.Position == Position))
-                    .Select(pump => new PumpTable()
+                    .Select(pump => new TempPump()
                     {
                         Id = pump.Id,
                         StationId = pump.StationId,
                         Position = pump.Position,
                         State = pump.State,
-                    }.ToPumpModel()).FirstOrDefault<PumpModel>();
+                    }).FirstOrDefault();
 
-                if (retPump == null)
+                if (tempPump == null)
                 {
                     return Ok(new ResponseModel
                     {
@@ -133,7 +157,7 @@ namespace DataAPI.Controller
                     {
                         Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
                         Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
-                        Data = retPump
+                        Data = tempPump.ToPumpModel()
                     });
                 }
             }
@@ -143,25 +167,25 @@ namespace DataAPI.Controller
         [ActionName("New")]
         public IHttpActionResult New([FromBody] PumpModel newPump)
         {
-            PumpModel retPump = new PumpModel();
+            TempPump tempPump = new TempPump();
             Guid newPumpStationId = PumpModel.RetrieveStationId(newPump.StationName);
 
             using (var myEntity = new DATNDBEntities())
             {
-                retPump = myEntity.PumpTables.Include("Id")
+                tempPump = myEntity.PumpTables.Include("Id")
                     .Where(pump => (pump.StationId == newPumpStationId && pump.Position == newPump.Position))
-                    .Select(pump => new PumpTable()
+                    .Select(pump => new TempPump()
                     {
                         Id = pump.Id,
                         StationId = pump.StationId,
                         Position = pump.Position,
                         State = pump.State
-                    }.ToPumpModel()).FirstOrDefault<PumpModel>();
+                    }).FirstOrDefault();
 
                 // able to add station
-                if (retPump == null)
+                if (tempPump == null)
                 {
-                    var retPumpTable = retPump.ToPumpTable();
+                    var retPumpTable = newPump.ToPumpTable();
 
                     myEntity.PumpTables.Add(retPumpTable);
                     myEntity.SaveChanges();

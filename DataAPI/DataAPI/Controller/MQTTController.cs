@@ -13,7 +13,7 @@ namespace DataAPI.Controller
 {
     public class MQTTController : ApiController
     {
-        const string MQTTBroker = "broker.hivemq.com";
+        const string MQTTBroker = "broker.emqx.io";
         const string mainTopic = "DATN.Pumpmonitor/Pump";
 
         MqttClient m_mqttClient = new MqttClient(MQTTBroker);
@@ -116,7 +116,7 @@ namespace DataAPI.Controller
             var myEntity = new DATNDBEntities();
             var oldPump = myEntity.PumpTables
                     .Where(pump => (pump.StationId == stationId && pump.Position == checkPump.Position))
-                    .FirstOrDefault<PumpTable>();
+                    .FirstOrDefault();
 
             if (oldPump != null)
             {

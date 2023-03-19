@@ -28,6 +28,7 @@ namespace DataAPI.Common
             public static readonly string MESSAGE_STATION_NOT_FOUND = "No station matches the station name";
             public static readonly string MESSAGE_STATION_DUPLICATE = "Cannot add the same station";
 
+            public static readonly string MESSAGE_PUMP_LIST_EMPTY = "No pumps found";
             public static readonly string MESSAGE_PUMP_EMPTY_FOUND = "No pump matches the station name";
             public static readonly string MESSAGE_PUMP_NOT_FOUND = "No pump matches the station name and pump name";
             public static readonly string MESSAGE_PUMP_DUPLICATE = "Cannot add the same pump";
