@@ -164,8 +164,7 @@ namespace DataAPI.Controller
         }
 
         [HttpGet]
-        [ActionName("GetNumberOfPumpsOn")]
-        public IHttpActionResult GetNumberOfPumpsOn(string StationName)
+        public IHttpActionResult GetByPumpState(string StationName, int State)
         {
             Guid stationId = PumpModel.RetrieveStationId(StationName);
 
@@ -196,7 +195,7 @@ namespace DataAPI.Controller
 
                 foreach (TempPump tP in tempPumpList)
                 {
-                    if(tP.State == 1)
+                    if(tP.State == State)
                     {
                         pumpList.Add(tP.ToPumpModel());
                     }
