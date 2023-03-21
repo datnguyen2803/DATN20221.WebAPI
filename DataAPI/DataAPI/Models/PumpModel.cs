@@ -49,7 +49,7 @@ namespace DataAPI.Models
 
         public static Guid RetrieveStationId(string StationName)
         {
-            var myEntity = new DATNDBEntities();
+            var myEntity = new DATN2022DBEntities();
             TempStation retStation = myEntity.StationTables.Include("Id")
                                       .Where(station => station.Name == StationName)
                                       .Select(station => new TempStation()
@@ -71,7 +71,7 @@ namespace DataAPI.Models
 
         public static string RetrieveStationName(Guid StationId)
         {
-            var myEntity = new DATNDBEntities();
+            var myEntity = new DATN2022DBEntities();
             TempStation retStation = myEntity.StationTables.Include("Id")
                                       .Where(station => station.Id == StationId)
                                       .Select(station => new TempStation()
@@ -91,6 +91,81 @@ namespace DataAPI.Models
             }
         }
     
+        public static Guid RetrievePumpId(string StationName, string PumpPosition)
+        {
+            Guid StationId = RetrieveStationId(StationName);
+            if(StationId == Guid.Empty)
+            {
+                return Guid.Empty;
+            }
+
+            var myEntity = new DATN2022DBEntities();
+            TempPump retPump = myEntity.PumpTables.Include("Id")
+                                      .Where(pump => pump.StationId == StationId && pump.Position == PumpPosition)
+                                      .Select(pump => new TempPump()
+                                      {
+                                          Id = pump.Id,
+                                          StationId = pump.StationId,
+                                          Position = pump.Position,
+                                          State = pump.State
+                                      }).FirstOrDefault();
+
+            if (retPump == null)
+            {
+                return Guid.Empty;
+            }
+            else
+            {
+                return retPump.Id;
+            }
+        }
+
+        public static string RetrievePumpPositionByPumpId(Guid PumpId)
+        {
+            var myEntity = new DATN2022DBEntities();
+            TempPump retPump = myEntity.PumpTables.Include("Id")
+                                      .Where(pump => pump.Id == PumpId)
+                                      .Select(pump => new TempPump()
+                                      {
+                                          Id = pump.Id,
+                                          StationId= pump.StationId,
+                                          Position = pump.Position,
+                                          State = pump.State
+                                      }).FirstOrDefault();
+
+            if (retPump == null)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return retPump.Position;
+            }
+        }
+
+        public static string RetrieveStationNameByPumpId(Guid PumpId)
+        {
+            var myEntity = new DATN2022DBEntities();
+            TempPump retPump = myEntity.PumpTables.Include("Id")
+                                      .Where(pump => pump.Id == PumpId)
+                                      .Select(pump => new TempPump()
+                                      {
+                                          Id = pump.Id,
+                                          StationId = pump.StationId,
+                                          Position = pump.Position,
+                                          State = pump.State
+                                      }).FirstOrDefault();
+
+            if (retPump == null)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return RetrieveStationName(retPump.StationId);
+            }
+        }
+
         public PumpTable ToPumpTable()
         {
             return new PumpTable

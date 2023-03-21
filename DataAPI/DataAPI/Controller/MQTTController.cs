@@ -8,6 +8,7 @@ using System.Web.Http;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using uPLibrary.Networking.M2Mqtt;
 using DataAPI.Models;
+using DataAPI.Common;
 
 namespace DataAPI.Controller
 {
@@ -113,16 +114,39 @@ namespace DataAPI.Controller
         private bool UpdateToDB(PumpModel checkPump)
         {
             Guid stationId = PumpModel.RetrieveStationId(checkPump.StationName);
-            var myEntity = new DATNDBEntities();
+            var myEntity = new DATN2022DBEntities();
             var oldPump = myEntity.PumpTables
                     .Where(pump => (pump.StationId == stationId && pump.Position == checkPump.Position))
                     .FirstOrDefault();
 
             if (oldPump != null)
             {
+                // update to PumpTable
                 oldPump.State = checkPump.State;
                 myEntity.SaveChanges();
                 Debug.WriteLine("Update successful!");
+
+                // add record to HistoryTable
+                HistoryModel newHistory = new HistoryModel
+                {
+                    StationName = checkPump.StationName,
+                    PumpPosition = checkPump.Position,
+                    Date = DateTime.Now.ToLocalTime(),
+                    Time = DateTime.Now.ToLocalTime().TimeOfDay,
+                    State = checkPump.State
+                };
+                Guid myPumpId = PumpModel.RetrievePumpId(newHistory.StationName, newHistory.PumpPosition);
+                HistoryTable historyTable = new HistoryTable
+                {
+                    Id = Guid.NewGuid(),
+                    PumpId = myPumpId,
+                    Date = newHistory.Date,
+                    Time = newHistory.Time,
+                    State = newHistory.State
+                };
+
+                myEntity.HistoryTables.Add(historyTable);
+                myEntity.SaveChanges();
 
                 return true;
             }

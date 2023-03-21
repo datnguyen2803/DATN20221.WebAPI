@@ -13,10 +13,10 @@ namespace DataAPI
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class DATNDBEntities : DbContext
+    public partial class DATN2022DBEntities : DbContext
     {
-        public DATNDBEntities()
-            : base("name=DATNDBEntities")
+        public DATN2022DBEntities()
+            : base("name=DATN2022DBEntities")
         {
         }
     
@@ -25,9 +25,9 @@ namespace DataAPI
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<HistoryTable> HistoryTables { get; set; }
         public virtual DbSet<PumpTable> PumpTables { get; set; }
         public virtual DbSet<StationTable> StationTables { get; set; }
         public virtual DbSet<UserTable> UserTables { get; set; }
-        public virtual DbSet<HistoryTable> HistoryTables { get; set; }
     }
 }

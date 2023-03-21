@@ -44,7 +44,7 @@ namespace DataAPI.Controller
         private bool CheckNameExisted(UserModel checkUser)
         {
             UserModel retUser = new UserModel();
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 retUser = myEntity.UserTables.Include("Id")
                 .Where(acc => acc.Name == checkUser.Name)
@@ -70,7 +70,7 @@ namespace DataAPI.Controller
             UserModel retUser = new UserModel();
             checkUser.Password = EncodeTo64(checkUser.Password);
 
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 retUser = myEntity.UserTables.Include("Id")
                 .Where(acc => (acc.Name == checkUser.Name) && (acc.Password == checkUser.Password))
@@ -97,7 +97,7 @@ namespace DataAPI.Controller
         {
             UserModel retUser = new UserModel();
 
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 retUser = myEntity.UserTables.Include("Id")
                     .Where(acc => acc.Name == "admin")
@@ -131,7 +131,7 @@ namespace DataAPI.Controller
         {
             UserModel retUser = new UserModel();
 
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 retUser = myEntity.UserTables.Include("Id")
                     .Where(acc => acc.Name == userName)
@@ -168,7 +168,7 @@ namespace DataAPI.Controller
 
             if (CheckNameExisted(newUser) == false)
             {
-                var myEntity = new DATNDBEntities();
+                var myEntity = new DATN2022DBEntities();
                 myEntity.UserTables.Add(newUserTable);
                 myEntity.SaveChanges();
                 Debug.WriteLine("Account registed successfully");
@@ -229,7 +229,7 @@ namespace DataAPI.Controller
         [ActionName("Edit")]
         public IHttpActionResult Edit([FromBody] UserModel checkUser)
         {
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 var oldUser = myEntity.UserTables
                     .Where(acc => acc.Name == checkUser.Name)
@@ -262,7 +262,7 @@ namespace DataAPI.Controller
         [HttpDelete]
         public IHttpActionResult Delete([FromBody] UserModel deleteUser)
         {
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 var oldUser = myEntity.UserTables
                     .Where(acc => acc.Name == deleteUser.Name)

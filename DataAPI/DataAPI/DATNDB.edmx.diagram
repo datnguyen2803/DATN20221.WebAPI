@@ -9,6 +9,8 @@
         <EntityTypeShape EntityType="DATNDBModel.StationTable" Width="1.5" PointX="0.75" PointY="1" />
         <EntityTypeShape EntityType="DATNDBModel.UserTable" Width="1.5" PointX="0.75" PointY="3.75" />
         <AssociationConnector Association="DATNDBModel.FK_PumpTable_StationTable" />
+        <EntityTypeShape EntityType="DATNDBModel.HistoryTable" Width="1.5" PointX="5.25" PointY="0.875" />
+        <AssociationConnector Association="DATNDBModel.FK_HistoryTable_PumpTable" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

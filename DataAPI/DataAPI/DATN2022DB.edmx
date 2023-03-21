@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="DATNDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="DATN2022DBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="HistoryTable">
           <Key>
             <PropertyRef Name="Id" />
@@ -64,7 +64,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="DATNDBModelStoreContainer">
+        <EntityContainer Name="DATN2022DBModelStoreContainer">
           <EntitySet Name="HistoryTable" EntityType="Self.HistoryTable" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PumpTable" EntityType="Self.PumpTable" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="StationTable" EntityType="Self.StationTable" Schema="dbo" store:Type="Tables" />
@@ -78,64 +78,11 @@
             <End Role="PumpTable" EntitySet="PumpTable" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="DATNDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityContainer Name="DATNDBEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="PumpTables" EntityType="DATNDBModel.PumpTable" />
-          <EntitySet Name="StationTables" EntityType="DATNDBModel.StationTable" />
-          <EntitySet Name="UserTables" EntityType="DATNDBModel.UserTable" />
-          <AssociationSet Name="FK_PumpTable_StationTable" Association="DATNDBModel.FK_PumpTable_StationTable">
-            <End Role="StationTable" EntitySet="StationTables" />
-            <End Role="PumpTable" EntitySet="PumpTables" />
-          </AssociationSet>
-          <EntitySet Name="HistoryTables" EntityType="DATNDBModel.HistoryTable" />
-          <AssociationSet Name="FK_HistoryTable_PumpTable" Association="DATNDBModel.FK_HistoryTable_PumpTable">
-            <End Role="PumpTable" EntitySet="PumpTables" />
-            <End Role="HistoryTable" EntitySet="HistoryTables" />
-          </AssociationSet>
-        </EntityContainer>
-        <EntityType Name="PumpTable">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Guid" Nullable="false" />
-          <Property Name="StationId" Type="Guid" Nullable="false" />
-          <Property Name="Position" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="false" />
-          <Property Name="State" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="StationTable" Relationship="DATNDBModel.FK_PumpTable_StationTable" FromRole="PumpTable" ToRole="StationTable" />
-          <NavigationProperty Name="HistoryTables" Relationship="DATNDBModel.FK_HistoryTable_PumpTable" FromRole="PumpTable" ToRole="HistoryTable" />
-        </EntityType>
-        <EntityType Name="StationTable">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Guid" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="false" />
-          <Property Name="Address" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="PumpTables" Relationship="DATNDBModel.FK_PumpTable_StationTable" FromRole="StationTable" ToRole="PumpTable" />
-        </EntityType>
-        <EntityType Name="UserTable">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Guid" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Password" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <Association Name="FK_PumpTable_StationTable">
-          <End Type="DATNDBModel.StationTable" Role="StationTable" Multiplicity="1" />
-          <End Type="DATNDBModel.PumpTable" Role="PumpTable" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="StationTable">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="PumpTable">
-              <PropertyRef Name="StationId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
+      <Schema Namespace="DATN2022DBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityType Name="HistoryTable">
           <Key>
             <PropertyRef Name="Id" />
@@ -145,11 +92,39 @@
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="Time" Type="Time" Nullable="false" Precision="0" />
           <Property Name="State" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="PumpTable" Relationship="DATNDBModel.FK_HistoryTable_PumpTable" FromRole="HistoryTable" ToRole="PumpTable" />
+          <NavigationProperty Name="PumpTable" Relationship="Self.FK_HistoryTable_PumpTable" FromRole="HistoryTable" ToRole="PumpTable" />
+        </EntityType>
+        <EntityType Name="PumpTable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="StationId" Type="Guid" Nullable="false" />
+          <Property Name="Position" Type="String" MaxLength="2" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="State" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="HistoryTables" Relationship="Self.FK_HistoryTable_PumpTable" FromRole="PumpTable" ToRole="HistoryTable" />
+          <NavigationProperty Name="StationTable" Relationship="Self.FK_PumpTable_StationTable" FromRole="PumpTable" ToRole="StationTable" />
+        </EntityType>
+        <EntityType Name="StationTable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="2" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Address" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="PumpTables" Relationship="Self.FK_PumpTable_StationTable" FromRole="StationTable" ToRole="PumpTable" />
+        </EntityType>
+        <EntityType Name="UserTable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Password" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
         </EntityType>
         <Association Name="FK_HistoryTable_PumpTable">
-          <End Type="DATNDBModel.PumpTable" Role="PumpTable" Multiplicity="1" />
-          <End Type="DATNDBModel.HistoryTable" Role="HistoryTable" Multiplicity="*" />
+          <End Role="PumpTable" Type="Self.PumpTable" Multiplicity="1" />
+          <End Role="HistoryTable" Type="Self.HistoryTable" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="PumpTable">
               <PropertyRef Name="Id" />
@@ -159,48 +134,74 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_PumpTable_StationTable">
+          <End Role="StationTable" Type="Self.StationTable" Multiplicity="1" />
+          <End Role="PumpTable" Type="Self.PumpTable" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="StationTable">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PumpTable">
+              <PropertyRef Name="StationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="DATN2022DBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="HistoryTables" EntityType="Self.HistoryTable" />
+          <EntitySet Name="PumpTables" EntityType="Self.PumpTable" />
+          <EntitySet Name="StationTables" EntityType="Self.StationTable" />
+          <EntitySet Name="UserTables" EntityType="Self.UserTable" />
+          <AssociationSet Name="FK_HistoryTable_PumpTable" Association="Self.FK_HistoryTable_PumpTable">
+            <End Role="PumpTable" EntitySet="PumpTables" />
+            <End Role="HistoryTable" EntitySet="HistoryTables" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PumpTable_StationTable" Association="Self.FK_PumpTable_StationTable">
+            <End Role="StationTable" EntitySet="StationTables" />
+            <End Role="PumpTable" EntitySet="PumpTables" />
+          </AssociationSet>
+        </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="DATNDBModelStoreContainer" CdmEntityContainer="DATNDBEntities">
-          <EntitySetMapping Name="PumpTables">
-            <EntityTypeMapping TypeName="DATNDBModel.PumpTable">
-              <MappingFragment StoreEntitySet="PumpTable">
-                <ScalarProperty Name="State" ColumnName="State" />
-                <ScalarProperty Name="Position" ColumnName="Position" />
-                <ScalarProperty Name="StationId" ColumnName="StationId" />
+        <EntityContainerMapping StorageEntityContainer="DATN2022DBModelStoreContainer" CdmEntityContainer="DATN2022DBEntities">
+          <EntitySetMapping Name="HistoryTables">
+            <EntityTypeMapping TypeName="DATN2022DBModel.HistoryTable">
+              <MappingFragment StoreEntitySet="HistoryTable">
                 <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="PumpId" ColumnName="PumpId" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Time" ColumnName="Time" />
+                <ScalarProperty Name="State" ColumnName="State" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PumpTables">
+            <EntityTypeMapping TypeName="DATN2022DBModel.PumpTable">
+              <MappingFragment StoreEntitySet="PumpTable">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="StationId" ColumnName="StationId" />
+                <ScalarProperty Name="Position" ColumnName="Position" />
+                <ScalarProperty Name="State" ColumnName="State" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="StationTables">
-            <EntityTypeMapping TypeName="DATNDBModel.StationTable">
+            <EntityTypeMapping TypeName="DATN2022DBModel.StationTable">
               <MappingFragment StoreEntitySet="StationTable">
-                <ScalarProperty Name="Address" ColumnName="Address" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="UserTables">
-            <EntityTypeMapping TypeName="DATNDBModel.UserTable">
+            <EntityTypeMapping TypeName="DATN2022DBModel.UserTable">
               <MappingFragment StoreEntitySet="UserTable">
-                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="HistoryTables">
-            <EntityTypeMapping TypeName="DATNDBModel.HistoryTable">
-              <MappingFragment StoreEntitySet="HistoryTable">
-                <ScalarProperty Name="State" ColumnName="State" />
-                <ScalarProperty Name="Time" ColumnName="Time" />
-                <ScalarProperty Name="Date" ColumnName="Date" />
-                <ScalarProperty Name="PumpId" ColumnName="PumpId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

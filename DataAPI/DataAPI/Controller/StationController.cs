@@ -18,7 +18,7 @@ namespace DataAPI.Controller
         {
             List<StationModel> stationList = new List<StationModel>();
 
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 stationList = myEntity.StationTables.Include("Id")
                             .Select(station => new StationModel()
@@ -53,7 +53,7 @@ namespace DataAPI.Controller
         {
             StationModel retStation = new StationModel();
 
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 retStation = myEntity.StationTables.Include("Id")
                     .Where(station => station.Name == StationCode)
@@ -87,7 +87,7 @@ namespace DataAPI.Controller
         {
             StationModel retStation = new StationModel();
 
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 retStation = myEntity.StationTables.Include("Id")
                     .Where(station => station.Name == newStation.Name)
@@ -128,7 +128,7 @@ namespace DataAPI.Controller
         [ActionName("Edit")]
         public IHttpActionResult Edit([FromBody] StationModel checkStation)
         {
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 var oldStation = myEntity.StationTables
                     .Where(station => station.Name == checkStation.Name)
@@ -161,7 +161,7 @@ namespace DataAPI.Controller
         [HttpDelete]
         public IHttpActionResult Delete(StationModel deleteStation)
         {
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 var oldStation = myEntity.StationTables
                     .Where(station => station.Name == deleteStation.Name)

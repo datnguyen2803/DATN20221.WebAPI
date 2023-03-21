@@ -19,7 +19,7 @@ namespace DataAPI.Controller
             List<PumpModel> pumpList = new List<PumpModel>();
             List<TempPump> tempPumpList = new List<TempPump>();
 
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
                         {
                 tempPumpList = myEntity.PumpTables.Include("Id")
                             .Select(pump => new TempPump()
@@ -75,7 +75,7 @@ namespace DataAPI.Controller
                 List<PumpModel> pumpList = new List<PumpModel>();
                 List<TempPump> tempPumpList = new List<TempPump>();
 
-                var myEntity = new DATNDBEntities();
+                var myEntity = new DATN2022DBEntities();
                 tempPumpList = myEntity.PumpTables.Include("Id")
                     .Where(pump => pump.StationId == stationId)
                     .Select(pump => new TempPump()
@@ -128,7 +128,7 @@ namespace DataAPI.Controller
             }
             else
             {
-                var myEntity = new DATNDBEntities();
+                var myEntity = new DATN2022DBEntities();
                 PumpModel retPump = new PumpModel();
                 TempPump tempPump = new TempPump();
 
@@ -182,7 +182,7 @@ namespace DataAPI.Controller
                 List<PumpModel> pumpList = new List<PumpModel>();
                 List<TempPump> tempPumpList = new List<TempPump>();
 
-                var myEntity = new DATNDBEntities();
+                var myEntity = new DATN2022DBEntities();
                 tempPumpList = myEntity.PumpTables.Include("Id")
                     .Where(pump => pump.StationId == stationId)
                     .Select(pump => new TempPump()
@@ -229,7 +229,7 @@ namespace DataAPI.Controller
             TempPump tempPump = new TempPump();
             Guid newPumpStationId = PumpModel.RetrieveStationId(newPump.StationName);
 
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 tempPump = myEntity.PumpTables.Include("Id")
                     .Where(pump => (pump.StationId == newPumpStationId && pump.Position == newPump.Position))
@@ -272,7 +272,7 @@ namespace DataAPI.Controller
         public IHttpActionResult Edit([FromBody] PumpModel checkPump)
         {
             Guid newPumpStationId = PumpModel.RetrieveStationId(checkPump.StationName);
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 var oldPump = myEntity.PumpTables
                     .Where(pump => (pump.StationId == newPumpStationId && pump.Position == checkPump.Position))
@@ -306,7 +306,7 @@ namespace DataAPI.Controller
         public IHttpActionResult Delete(PumpModel deletePump)
         {
             Guid newPumpStationId = PumpModel.RetrieveStationId(deletePump.StationName);
-            using (var myEntity = new DATNDBEntities())
+            using (var myEntity = new DATN2022DBEntities())
             {
                 var oldPump = myEntity.PumpTables
                     .Where(pump => (pump.StationId == newPumpStationId && pump.Position == deletePump.Position))
