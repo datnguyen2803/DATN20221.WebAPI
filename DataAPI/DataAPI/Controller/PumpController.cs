@@ -163,6 +163,66 @@ namespace DataAPI.Controller
             }
         }
 
+        [HttpGet]
+        [ActionName("GetNumberOfPumpsOn")]
+        public IHttpActionResult GetNumberOfPumpsOn(string StationName)
+        {
+            Guid stationId = PumpModel.RetrieveStationId(StationName);
+
+            if (stationId == Guid.Empty)
+            {
+                return Ok(new ResponseModel
+                {
+                    Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                    Message = ConstantHelper.APIResponseMessage.MESSAGE_STATION_NOT_FOUND,
+                    Data = null
+                });
+            }
+            else
+            {
+                List<PumpModel> pumpList = new List<PumpModel>();
+                List<TempPump> tempPumpList = new List<TempPump>();
+
+                var myEntity = new DATNDBEntities();
+                tempPumpList = myEntity.PumpTables.Include("Id")
+                    .Where(pump => pump.StationId == stationId)
+                    .Select(pump => new TempPump()
+                    {
+                        Id = pump.Id,
+                        StationId = pump.StationId,
+                        Position = pump.Position,
+                        State = pump.State,
+                    }).ToList<TempPump>();
+
+                foreach (TempPump tP in tempPumpList)
+                {
+                    if(tP.State == 1)
+                    {
+                        pumpList.Add(tP.ToPumpModel());
+                    }
+                }
+
+                if (pumpList == null)
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_RESOURCE_NOT_FOUND,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_PUMP_EMPTY_FOUND,
+                        Data = null
+                    });
+                }
+                else
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Code = ConstantHelper.APIResponseCode.CODE_SUCCESS,
+                        Message = ConstantHelper.APIResponseMessage.MESSAGE_OK,
+                        Data = pumpList
+                    });
+                }
+            }
+        }
+
         [HttpPost]
         [ActionName("New")]
         public IHttpActionResult New([FromBody] PumpModel newPump)
